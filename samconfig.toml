@@ -1,0 +1,11 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "discord-ec2-server-manager"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-8mlsapf7qjpc"
+s3_prefix = "discord-ec2-server-manager"
+region = "us-west-2"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+image_repositories = []
