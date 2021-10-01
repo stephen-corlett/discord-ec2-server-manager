@@ -1,0 +1,1 @@
+# discord-ec2-server-manager
