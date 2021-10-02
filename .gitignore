@@ -20,4 +20,5 @@ node_modules/
 .env
 
 built
-# End of https://www.gitignore.io/api/osx,node,linux,windows
+
+package-lock.json
