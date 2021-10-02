@@ -48,7 +48,7 @@ const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     const handler = interactionHandler(eventBody.type);
 
     const response: APIResponse = {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       body: JSON.stringify(await handler(eventBody)),
     };
     return response;
