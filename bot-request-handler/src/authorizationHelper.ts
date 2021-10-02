@@ -1,16 +1,21 @@
 import { APIGatewayProxyEventHeaders } from 'aws-lambda';
 import { verifyKey } from 'discord-interactions';
 
+import Errors from './errors';
 import config from './config';
+
+const { UnauthorizedError } = Errors;
 
 const verifyAuthorization = (
   headers: APIGatewayProxyEventHeaders,
   body: string,
-): Boolean => {
+): void | never => {
   const authSignature = headers['x-signature-ed25519'];
   const authTimestamp = headers['x-signature-timestamp'];
 
-  return verifyKey(body, authSignature, authTimestamp, config.env.BOT_PUBLIC_KEY);
+  if (!verifyKey(body, authSignature, authTimestamp, config.env.BOT_PUBLIC_KEY)) {
+    throw new UnauthorizedError();
+  }
 };
 
 export default {

@@ -13,7 +13,7 @@ import Errors from './errors';
 import { SupportedCommands } from './types/CommandType';
 import APIResponse from './types/APIResponse';
 
-const { InternalServerError, UnauthorizedError, BadRequestError } = Errors;
+const { InternalServerError, BadRequestError } = Errors;
 
 const interactionHandler = (type: InteractionType): Function => {
   if (type === InteractionType.Ping) {
@@ -39,14 +39,10 @@ const interactionHandler = (type: InteractionType): Function => {
 
 const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    if (!authorizationHelper.verifyAuthorization(event.headers, event.body)) {
-      throw new UnauthorizedError();
-    }
+    authorizationHelper.verifyAuthorization(event.headers, event.body);
 
     const eventBody: APIInteraction = JSON.parse(event.body);
-
     const handler = interactionHandler(eventBody.type);
-
     const response: APIResponse = {
       statusCode: HttpStatus.OK,
       body: JSON.stringify(await handler(eventBody)),
