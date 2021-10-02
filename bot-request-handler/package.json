@@ -6,7 +6,13 @@
   "repository": "https://github.com/awslabs/aws-sam-cli/tree/develop/samcli/local/init/templates/cookiecutter-aws-sam-hello-nodejs",
   "author": "SAM CLI",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "aws-sdk": "^2.999.0",
+    "axios": "^0.21.1",
+    "discord-api-types": "^0.23.1",
+    "discord-interactions": "^2.3.0",
+    "http-status-codes": "^2.1.4"
+  },
   "scripts": {
     "compile": "tsc",
     "lint": "eslint . --ext .ts --fix"
@@ -16,8 +22,6 @@
     "@types/node": "^16.10.2",
     "@typescript-eslint/eslint-plugin": "^4.32.0",
     "@typescript-eslint/parser": "^4.32.0",
-    "aws-sdk": "^2.999.0",
-    "axios": "^0.21.1",
     "eslint": "^7.32.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.24.2",

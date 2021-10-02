@@ -15,6 +15,11 @@
       "@typescript-eslint"
     ],
     "rules": {
-      "import/no-unresolved": 0
+      "import/no-unresolved": 0,
+      "import/extensions": 0,
+      "no-shadow": 0,
+      "@typescript-eslint/no-shadow": "error",
+      "no-unused-vars": 0,
+      "@typescript-eslint/no-unused-vars": "error"
     }
 }
