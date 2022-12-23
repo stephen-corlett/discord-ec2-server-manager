@@ -1,10 +1,7 @@
 import { APIGatewayProxyEventHeaders } from 'aws-lambda';
 import { verifyKey } from 'discord-interactions';
-
-import Errors from '../errors';
+import { UnauthorizedError } from '../errors';
 import config from '../config';
-
-const { UnauthorizedError } = Errors;
 
 const verifyAuthorization = (headers: APIGatewayProxyEventHeaders, body: string): void | never => {
   const authSignature = headers['x-signature-ed25519'];

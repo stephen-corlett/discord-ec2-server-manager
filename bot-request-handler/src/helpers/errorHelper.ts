@@ -1,4 +1,4 @@
-import LambdaError from '../errors/LambdaError';
+import { LambdaError } from '../errors';
 
 export const isLambdaError = (error: unknown): error is LambdaError => {
   const lambdaError = error as LambdaError;

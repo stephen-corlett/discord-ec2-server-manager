@@ -3,13 +3,11 @@ import { InteractionResponseType } from 'discord-api-types/v9';
 import HttpStatus from 'http-status-codes';
 import authorizationHelper from './helpers/authorizationHelper';
 import lambdaService from './lambdaService';
-import Errors from './errors';
+import { InternalServerError, BadRequestError } from './errors';
 import CommandType from './constants/CommandType';
 import APIResponse from './types/APIResponse';
 import { isDiscordApplicationCommand, isDiscordChatInputCommand, isDiscordPing } from './helpers/discordTypeHelper';
 import { isLambdaError } from './helpers/errorHelper';
-
-const { InternalServerError, BadRequestError } = Errors;
 
 const handleInteractionType = async (body: unknown) => {
   if (isDiscordPing(body)) {

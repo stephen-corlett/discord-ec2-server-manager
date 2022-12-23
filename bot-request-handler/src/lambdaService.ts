@@ -1,8 +1,6 @@
-import Errors from './errors';
+import { InternalServerError } from './errors';
 import lambdaClient from './lambdaClient';
 import config from './config';
-
-const { InternalServerError } = Errors;
 
 const invoke = async <T extends unknown>(payload: T): Promise<void> => {
   const lambdaInfo = {

@@ -1,11 +1,4 @@
-import BadRequestError from './BadRequestError';
-import InternalServerError from './InternalServerError';
-import LambdaError from './LambdaError';
-import UnauthorizedError from './UnauthorizedError';
-
-export default {
-  BadRequestError,
-  InternalServerError,
-  LambdaError,
-  UnauthorizedError,
-};
+export { default as BadRequestError } from './BadRequestError';
+export { default as InternalServerError } from './InternalServerError';
+export { default as LambdaError } from './LambdaError';
+export { default as UnauthorizedError } from './UnauthorizedError';
