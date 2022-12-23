@@ -41,4 +41,4 @@ const handleLambdaEvent = async (event: APIGatewayProxyEvent): Promise<APIGatewa
   }
 };
 
-export default { handleLambdaEvent };
+export default handleLambdaEvent;

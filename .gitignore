@@ -20,5 +20,7 @@ node_modules/
 .env
 
 build
+tmp
+.aws-sam
 
 package-lock.json
