@@ -1,6 +1,6 @@
 import HttpStatus from 'http-status-codes';
 
-import LambdaError from './lambdaError';
+import LambdaError from './LambdaError';
 
 class BadRequestError extends LambdaError {
   constructor(message?: string) {

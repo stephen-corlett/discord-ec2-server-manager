@@ -1,12 +1,10 @@
-import { APIChatInputApplicationCommandInteraction } from 'discord-api-types/v9';
-
 import Errors from './errors';
 import lambdaClient from './lambdaClient';
 import config from './config';
 
 const { InternalServerError } = Errors;
 
-const invoke = async (payload: APIChatInputApplicationCommandInteraction) => {
+const invoke = async <T extends unknown>(payload: T): Promise<void> => {
   const lambdaInfo = {
     FunctionName: config.env.RESPONSE_FUNC_ARN,
     InvocationType: 'Event',
