@@ -8,6 +8,18 @@ Globals:
     Timeout: 3
     Runtime: nodejs16.x
 
+Parameters:
+  AwsRegion:
+    Type: String
+  BotApplicationId:
+    Type: String
+  BotPublicKey:
+    Type: String
+  BotClientSecret:
+    Type: String
+  EC2InstanceId:
+    Type: String
+
 Resources:
   Ec2StatusControllerFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -18,14 +30,20 @@ Resources:
         - !Ref NodeModulesDependencyLayer
       Architectures:
         - x86_64
+      Policies:
+        - EC2DescribePolicy: {}
       Environment:
         Variables:
-          # ACCESS_KEY: process.env.ACCESS_KEY,
-          # SECRET_KEY: process.env.SECRET_KEY,
-          REGION: 'us-west-2'
-          BOT_APPLICATION_ID: '814014697527312434'
-          INSTANCE_ID: 'i-056291a61306e8f94'
-          BOT_PUBLIC_KEY: '23058e973c398a8af6315a39d240d472409089133b0d2787aa2971663e111c7c'
+          REGION:
+            Ref: AwsRegion
+          BOT_APPLICATION_ID:
+            Ref: BotApplicationId
+          BOT_PUBLIC_KEY:
+            Ref: BotPublicKey
+          BOT_CLIENT_SECRET:
+            Ref: BotClientSecret
+          INSTANCE_ID:
+            Ref: EC2InstanceId
   BotRequestHandlerFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -47,8 +65,10 @@ Resources:
               !Ref Ec2StatusControllerFunction
       Environment:
         Variables:
-          BOT_PUBLIC_KEY: '23058e973c398a8af6315a39d240d472409089133b0d2787aa2971663e111c7c'
-          REGION: 'us-west-2'
+          REGION:
+            Ref: AwsRegion
+          BOT_PUBLIC_KEY:
+            Ref: BotPublicKey
           RESPONSE_FUNC_ARN: !GetAtt Ec2StatusControllerFunction.Arn
   NodeModulesDependencyLayer:
     Type: AWS::Serverless::LayerVersion

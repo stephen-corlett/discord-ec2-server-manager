@@ -19,4 +19,11 @@ npm install --production
 
 cd ../../
 
-sam deploy
+source .env
+sam deploy --config-file samconfig.toml \
+  --parameter-overrides \
+    ParameterKey=AwsRegion,ParameterValue=$AWS_REGION \
+    ParameterKey=BotApplicationId,ParameterValue=$BOT_APPLICATION_ID \
+    ParameterKey=BotPublicKey,ParameterValue=$BOT_PUBLIC_KEY \
+    ParameterKey=BotClientSecret,ParameterValue=$BOT_CLIENT_SECRET \
+    ParameterKey=EC2InstanceId,ParameterValue=$EC2_INSTANCE_ID
