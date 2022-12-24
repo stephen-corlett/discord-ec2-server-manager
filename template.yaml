@@ -9,10 +9,27 @@ Globals:
     Runtime: nodejs16.x
 
 Resources:
+  Ec2StatusControllerFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: build/ec2-status-controller/
+      Handler: app.default
+      Layers:
+        - !Ref NodeModulesDependencyLayer
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          # ACCESS_KEY: process.env.ACCESS_KEY,
+          # SECRET_KEY: process.env.SECRET_KEY,
+          REGION: 'us-west-2'
+          BOT_APPLICATION_ID: '814014697527312434'
+          INSTANCE_ID: 'i-056291a61306e8f94'
+          BOT_PUBLIC_KEY: '23058e973c398a8af6315a39d240d472409089133b0d2787aa2971663e111c7c'
   BotRequestHandlerFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: build/
+      CodeUri: build/bot-request-handler/
       Handler: app.default
       Layers:
         - !Ref NodeModulesDependencyLayer
@@ -27,12 +44,12 @@ Resources:
       Policies:
         - LambdaInvokePolicy:
             FunctionName:
-              discord-response-builder
+              !Ref Ec2StatusControllerFunction
       Environment:
         Variables:
           BOT_PUBLIC_KEY: '23058e973c398a8af6315a39d240d472409089133b0d2787aa2971663e111c7c'
           REGION: 'us-west-2'
-          RESPONSE_FUNC_ARN: 'arn:aws:lambda:us-west-2:188266554881:function:discord-response-builder'
+          RESPONSE_FUNC_ARN: !GetAtt Ec2StatusControllerFunction.Arn
   NodeModulesDependencyLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
@@ -45,11 +62,17 @@ Resources:
       RetentionPolicy: Retain
 
 Outputs:
+  Ec2StatusControllerFunction:
+    Description: "EC2 Status Controller Lambda Function ARN"
+    Value: !GetAtt Ec2StatusControllerFunction.Arn
+  Ec2StatusControllerFunctionIamRole:
+    Description: "Implicit IAM Role created for EC2 Status Controller function"
+    Value: !GetAtt Ec2StatusControllerFunctionRole.Arn
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   DiscordEC2ServerManagerApi:
-    Description: "API Gateway endpoint URL for Prod stage for Bot Request Handler function"
+    Description: "API Gateway endpoint URL for Prod stage to trigger Bot Request Handler function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
   BotRequestHandlerFunction:
     Description: "Bot Request Handler Lambda Function ARN"

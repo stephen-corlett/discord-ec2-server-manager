@@ -2,7 +2,7 @@ import { InternalServerError } from './errors';
 import lambdaClient from './lambdaClient';
 import config from './config';
 
-const invoke = async <T extends unknown>(payload: T): Promise<void> => {
+const invoke = async (payload: unknown): Promise<void> => {
   const lambdaInfo = {
     FunctionName: config.env.RESPONSE_FUNC_ARN,
     InvocationType: 'Event',

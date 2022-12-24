@@ -14,7 +14,7 @@ class APIResponse<T> implements IAPIResponse {
       statusCode: this.statusCode,
       body: JSON.stringify(this.body),
       isBase64Encoded: false,
-      headers: {}
+      headers: {},
     };
   }
 }

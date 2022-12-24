@@ -23,4 +23,6 @@ build
 tmp
 .aws-sam
 
+dependencies
+
 package-lock.json

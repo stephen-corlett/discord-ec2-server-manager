@@ -4,9 +4,9 @@
     "target": "ES2017",
     "noImplicitAny": true,
     "preserveConstEnums": true,
-    "outDir": "../build",
+    "outDir": "./build",
     "sourceMap": false
   },
-  "include": ["src/**/*"],
+  "include": ["bot-request-handler/**/*.ts", "ec2-status-controller/**/*.ts", "shared/**/*.ts"],
   "exclude": ["node_modules", "**/*.spec.ts"]
 }

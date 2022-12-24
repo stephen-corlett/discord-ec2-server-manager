@@ -1,23 +1,22 @@
 #!/usr/bin/env bash
 
 echo Cleaning up old build files...
-rm -rf build/*
-rm -rf tmp/*
-rm -rf dependencies/*
+rm -rf build
+rm -rf dependencies
 
 echo Preparing to build...
-cp -r bot-request-handler/* tmp
-cd tmp
 
 echo Building...
 npm install
 npm run lint
 npm run compile
 
-npm prune --production
-mkdir ../dependencies/nodejs/
-cp -r node_modules ../dependencies/nodejs/node_modules
+mkdir -p ./dependencies/nodejs/
+cp package.json ./dependencies/nodejs/package.json
+# cp -r node_modules ../dependencies/nodejs/node_modules
+cd dependencies/nodejs
+npm install --production
 
-cd ..
+cd ../../
 
 sam deploy
