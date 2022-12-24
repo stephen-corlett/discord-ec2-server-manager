@@ -22,6 +22,8 @@ class CommandService implements ICommandService {
       await DiscordClient.sendDiscordResponse(this.command, message);
     } catch (e) {
       console.log(e);
+      const unhandledErrorDiscordMessage = `${DiscordEmoji.SOS} Something went wrong, you might want to try again.`;
+      await DiscordClient.sendDiscordResponse(this.command, unhandledErrorDiscordMessage);
       throw new Error('Error completing request.');
     }
   };
