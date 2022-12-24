@@ -1,17 +1,20 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 
-interface IAPIResponse<T> {
+export interface IAPIResponse {
   statusCode: number;
-  body?: T;
+  body?: unknown;
+  toApiGatewayProxyResult: () => APIGatewayProxyResult;
 }
 
-class APIResponse<T> implements IAPIResponse<T> {
+class APIResponse<T> implements IAPIResponse {
   constructor(public statusCode: number, public body: T) {}
 
-  toApiGatewayResponse(): APIGatewayProxyResult {
+  toApiGatewayProxyResult(): APIGatewayProxyResult {
     return {
       statusCode: this.statusCode,
       body: JSON.stringify(this.body),
+      isBase64Encoded: false,
+      headers: {}
     };
   }
 }

@@ -1,7 +1,7 @@
-enum CommandType {
-  Start = 'start',
-  Stop = 'stop',
-  Status = 'status',
+const CommandType = {
+  START: 'start',
+  STOP: 'stop',
+  STATUS: 'status',
 }
 
 export default CommandType;

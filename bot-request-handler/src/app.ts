@@ -1,22 +1,22 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { InteractionResponseType } from 'discord-api-types/v9';
+import { APIGatewayProxyHandler } from 'aws-lambda';
+import { APIInteractionResponse, InteractionResponseType } from 'discord-api-types/v9';
 import HttpStatus from 'http-status-codes';
 import authorizationHelper from './helpers/authorizationHelper';
 import lambdaService from './lambdaService';
 import { InternalServerError, BadRequestError } from './errors';
 import CommandType from './constants/CommandType';
-import APIResponse from './types/APIResponse';
+import APIResponse, { IAPIResponse } from './types/APIResponse';
 import { isDiscordApplicationCommand, isDiscordChatInputCommand, isDiscordPing } from './helpers/discordTypeHelper';
 import { isLambdaError } from './helpers/errorHelper';
 
-const handleInteractionType = async (body: unknown) => {
+const handleInteractionType = async (body: unknown): Promise<APIInteractionResponse> => {
   if (isDiscordPing(body)) {
     return { type: InteractionResponseType.Pong };
   }
 
   if (isDiscordApplicationCommand(body) && isDiscordChatInputCommand(body)) {
     const commandType = body.data.options[0].name;
-    if ((Object.values(CommandType) as string[]).includes(commandType)) {
+    if (!Object.values(CommandType).includes(commandType)) {
       throw new BadRequestError(`CommandType ${commandType} is not supported`);
     }
 
@@ -27,18 +27,20 @@ const handleInteractionType = async (body: unknown) => {
   throw new InternalServerError('Unsupported interaction type.');
 };
 
-const handleLambdaEvent = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+const handleLambdaEvent: APIGatewayProxyHandler = async (event) => {
+  let response: IAPIResponse;
   try {
     authorizationHelper.verifyAuthorization(event.headers, event.body);
 
     const eventBody = JSON.parse(event.body) as unknown;
     const responsePayload = await handleInteractionType(eventBody);
-    const response = new APIResponse(HttpStatus.OK, JSON.stringify(responsePayload));
-    return response.toApiGatewayResponse();
+    response = new APIResponse<APIInteractionResponse>(HttpStatus.OK, responsePayload);
   } catch (e) {
     const errorPayload = isLambdaError(e) ? e : new InternalServerError();
-    throw new Error(JSON.stringify(errorPayload));
+    response = new APIResponse(errorPayload.statusCode, { message: errorPayload.message });
   }
+  console.log(response);
+  return response.toApiGatewayProxyResult();
 };
 
 export default handleLambdaEvent;

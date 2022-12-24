@@ -22,8 +22,17 @@ Resources:
         BotRequestHandler:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /bot
-            Method: get
+            Path: /bot_request
+            Method: POST
+      Policies:
+        - LambdaInvokePolicy:
+            FunctionName:
+              discord-response-builder
+      Environment:
+        Variables:
+          BOT_PUBLIC_KEY: '23058e973c398a8af6315a39d240d472409089133b0d2787aa2971663e111c7c'
+          REGION: 'us-west-2'
+          RESPONSE_FUNC_ARN: 'arn:aws:lambda:us-west-2:188266554881:function:discord-response-builder'
   NodeModulesDependencyLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
@@ -41,7 +50,7 @@ Outputs:
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   DiscordEC2ServerManagerApi:
     Description: "API Gateway endpoint URL for Prod stage for Bot Request Handler function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
   BotRequestHandlerFunction:
     Description: "Bot Request Handler Lambda Function ARN"
     Value: !GetAtt BotRequestHandlerFunction.Arn
