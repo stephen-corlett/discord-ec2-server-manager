@@ -13,7 +13,6 @@ npm run compile
 
 mkdir -p ./dependencies/nodejs/
 cp package.json ./dependencies/nodejs/package.json
-# cp -r node_modules ../dependencies/nodejs/node_modules
 cd dependencies/nodejs
 npm install --production
 

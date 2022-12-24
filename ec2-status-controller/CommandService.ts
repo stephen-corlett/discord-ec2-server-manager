@@ -70,6 +70,7 @@ class CommandService implements ICommandService {
       return `${DiscordEmoji.BED} Server is already stopped`;
     }
 
+    await ec2Client.stopInstances(InstanceParams).promise();
     const res = await this.waitForInstanceStopped();
     if (res instanceof Error) {
       return `${DiscordEmoji.X} Failed to stop the server, please retry`;
