@@ -12,9 +12,9 @@ The stack is deployed via AWS SAM so that you can deploy to any AWS account but 
 
 ## Currently supported commands
 
-`Status` - Check if the server is running or not
-`Start` - Start the server
-`Stop` - Stop the server
+- `Status` - Check if the server is running or not
+- `Start` - Start the server
+- `Stop` - Stop the server
 
 ## Getting started
 
