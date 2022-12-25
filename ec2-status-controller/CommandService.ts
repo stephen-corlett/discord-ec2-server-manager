@@ -102,7 +102,8 @@ class CommandService implements ICommandService {
   };
 
   private waitForInstanceParams = () => {
-    return { ...InstanceParams, $waiter: { delay: 5, maxAttempts: 10 } };
+    // The waiter time should be less than the Lambda timout eg. waiter 5sec * 10attempts = 75, Lambda timeout 80 seconds
+    return { ...InstanceParams, $waiter: { delay: 5, maxAttempts: 15 } };
   };
 }
 

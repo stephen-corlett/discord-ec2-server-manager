@@ -25,7 +25,7 @@ Resources:
     Properties:
       CodeUri: build/ec2-status-controller/
       Handler: app.default
-      Timeout: 60
+      Timeout: 80
       Layers:
         - !Ref NodeModulesDependencyLayer
       Architectures:
