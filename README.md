@@ -67,19 +67,19 @@ Body:
     "description": "Tell the Discord bot to do something.",
     "options": [
       {
-          "type": 1,
-          "name": "start",
-          "description": "Start the server"
+        "type": 1,
+        "name": "start",
+        "description": "Start the server"
       },
       {
-          "type": 1,
-          "name": "stop",
-          "description": "Stop the server"
+        "type": 1,
+        "name": "stop",
+        "description": "Stop the server"
       },
       {
-          "type": 1,
-          "name": "status",
-          "description": "Show the current server status"
+        "type": 1,
+        "name": "status",
+        "description": "Show the current server status"
       }
     ]
   }
