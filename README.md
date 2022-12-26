@@ -88,4 +88,4 @@ Body:
 
 ### Verify
 
-In your Discord server run one of the commands like `/viking start`.
+In your Discord server run one of the commands like `/bot start`.

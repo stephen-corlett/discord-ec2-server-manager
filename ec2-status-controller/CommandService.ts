@@ -71,12 +71,8 @@ class CommandService implements ICommandService {
     }
 
     await ec2Client.stopInstances(InstanceParams).promise();
-    const res = await this.waitForInstanceStopped();
-    if (res instanceof Error) {
-      return `${DiscordEmoji.X} Failed to stop the server, please retry`;
-    }
 
-    return `${DiscordEmoji.HALF_MOON_LEFT} Server stopped`;
+    return `${DiscordEmoji.HALF_MOON_LEFT} Stopping the server`;
   };
 
   private handleStatus = async () => {
@@ -95,10 +91,6 @@ class CommandService implements ICommandService {
 
   private waitForInstanceRunning = async () => {
     return await ec2Client.waitFor('instanceRunning', this.waitForInstanceParams()).promise();
-  };
-
-  private waitForInstanceStopped = async () => {
-    return await ec2Client.waitFor('instanceStopped', this.waitForInstanceParams()).promise();
   };
 
   private waitForInstanceParams = () => {
