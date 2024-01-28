@@ -161,6 +161,18 @@ Resources:
           BOT_PUBLIC_KEY:
             Ref: BotPublicKey
           RESPONSE_FUNC_ARN: !GetAtt Ec2StatusControllerFunction.Arn
+
+  EventBridgeScheduledShutdownRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+      Name: 'DailyShutdownRule'
+      ScheduleExpression: 'cron(30 10 * * ? *)'  # Runs every day at 02:30 AM PST (UTC-8)
+      State: 'ENABLED'
+      Targets:
+        - Arn: !GetAtt Ec2StatusControllerFunction.Arn
+          Id: 'TargetFunction'
+          Input: '{ "isScheduledShutdown": true }'
+
   NodeModulesDependencyLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:

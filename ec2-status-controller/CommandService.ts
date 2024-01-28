@@ -62,7 +62,7 @@ class CommandService implements ICommandService {
     return `${DiscordEmoji.CROSSED_SWORDS} Server started at IP: ${newIp}`;
   };
 
-  private handleStop = async () => {
+  handleStop = async (): Promise<string> => {
     if ((await this.getInstanceInfo()).state === InstanceState.STOPPED) {
       return `${DiscordEmoji.BED} Server is already stopped`;
     }
