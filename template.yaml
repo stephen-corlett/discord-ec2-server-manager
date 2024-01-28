@@ -5,7 +5,7 @@ Description: >
 
 Globals:
   Function:
-    Runtime: nodejs16.x
+    Runtime: nodejs20.x
 
 Parameters:
   AwsRegion:
@@ -16,10 +16,93 @@ Parameters:
     Type: String
   BotClientSecret:
     Type: String
-  EC2InstanceId:
+  S3BucketName:
     Type: String
+  S3StartServerScriptPath:
+    Type: String
+  EC2KeyName:
+    Type: String
+    Default: 'ec2-server-key'
+  EC2InstanceType:
+    Type: String
+    Default: 't3a.micro'
+  EC2ImageId:
+    Type: String
+    Default: 'ami-035bf26fb18e75d1b'
+  EBSStorageSizeGB:
+    Type: Number
+    Default: 20
 
 Resources:
+  EC2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "ec2.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: "S3AccessPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "s3:ListBucket"
+                  - "s3:GetObject"
+                  - "s3:PutObject"
+                Resource:
+                  - !Sub "arn:aws:s3:::${S3BucketName}/*"
+
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - Ref: EC2Role
+
+  EC2SSHKeyPair:
+    Type: 'AWS::EC2::KeyPair'
+    Properties:
+      KeyName: !Ref EC2KeyName
+
+  EC2SecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Security group for the EC2 instance'
+      SecurityGroupIngress:
+        - CidrIp: '0.0.0.0/0'
+          FromPort: 15636
+          ToPort: 15637
+          IpProtocol: udp
+        - CidrIp: '0.0.0.0/0'
+          FromPort: 22
+          ToPort: 22
+          IpProtocol: tcp
+
+  EC2ServerInstance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref EC2ImageId
+      InstanceType: !Ref EC2InstanceType
+      KeyName: !Ref EC2SSHKeyPair
+      SecurityGroupIds:
+        - !Ref EC2SecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: "/dev/xvda"
+          Ebs:
+            VolumeSize: !Ref EBSStorageSizeGB
+            VolumeType: gp3
+      IamInstanceProfile: !Ref EC2InstanceProfile
+      UserData: !Base64
+        Fn::Sub: |
+          #!/bin/bash
+          sudo aws s3 cp s3://${S3BucketName}${S3StartServerScriptPath} /home/ec2-user/start-server.sh
+          sudo chmod +x /home/ec2-user/start-server.sh
+          /home/ec2-user/start-server.sh
+
   Ec2StatusControllerFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -49,8 +132,8 @@ Resources:
             Ref: BotPublicKey
           BOT_CLIENT_SECRET:
             Ref: BotClientSecret
-          INSTANCE_ID:
-            Ref: EC2InstanceId
+          INSTANCE_ID: !Ref EC2ServerInstance
+
   BotRequestHandlerFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -85,7 +168,7 @@ Resources:
       Description: Node Modules
       ContentUri: dependencies/
       CompatibleRuntimes:
-        - nodejs16.x
+        - nodejs20.x
       LicenseInfo: 'MIT'
       RetentionPolicy: Retain
 
@@ -108,3 +191,9 @@ Outputs:
   BotRequestHandlerFunctionIamRole:
     Description: "Implicit IAM Role created for Bot Request Handler function"
     Value: !GetAtt BotRequestHandlerFunctionRole.Arn
+  InstanceId:
+    Description: 'ID of the created EC2 instance'
+    Value: !Ref EC2ServerInstance
+  PublicDnsName:
+    Description: 'Public DNS name of the created EC2 instance'
+    Value: !GetAtt EC2ServerInstance.PublicDnsName

@@ -7,13 +7,15 @@ import {
 } from 'discord-api-types/v9';
 
 export const isDiscordPing = (
-  apiResponse: unknown
+  apiResponse: APIBaseInteraction<InteractionType, unknown>
 ): apiResponse is APIBaseInteraction<InteractionType.Ping, unknown> => {
-  return (apiResponse as APIBaseInteraction<InteractionType.Ping, unknown>)?.type === InteractionType.Ping;
+  return apiResponse?.type === InteractionType.Ping;
 };
 
-export const isDiscordApplicationCommand = (apiResponse: unknown): apiResponse is APIApplicationCommandInteraction => {
-  return (apiResponse as APIApplicationCommandInteraction)?.type === InteractionType.ApplicationCommand;
+export const isDiscordApplicationCommand = (
+  apiResponse: APIBaseInteraction<InteractionType, unknown>
+): apiResponse is APIApplicationCommandInteraction => {
+  return apiResponse?.type === InteractionType.ApplicationCommand;
 };
 
 export const isDiscordChatInputCommand = (

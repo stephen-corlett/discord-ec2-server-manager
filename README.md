@@ -21,8 +21,8 @@ The stack is deployed via AWS SAM so that you can deploy to any AWS account but 
 ### Prerequisites
 
 - Discord Bot Setup
-- EC2 Server Setup in AWS
-- AWS SAM Configured Locally With Your AWS Account
+- AWS CLI setup to authenticate to your desired region
+- AWS SAM Installed
 - A UNIX terminal (Linux, Mac, Windows w\ Bash enabled)
 
 ### Clone the repository

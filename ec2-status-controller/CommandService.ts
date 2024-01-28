@@ -9,27 +9,24 @@ const InstanceParams = {
 };
 
 interface ICommandService {
-  command: APIChatInputApplicationCommandInteraction;
-  run: () => Promise<void>;
+  run: (command: APIChatInputApplicationCommandInteraction) => Promise<void>;
 }
 
 class CommandService implements ICommandService {
-  constructor(public command: APIChatInputApplicationCommandInteraction) {}
-
-  public run = async (): Promise<void> => {
+  public run = async (command: APIChatInputApplicationCommandInteraction): Promise<void> => {
     try {
-      const message = await this.getMessageResponse();
-      await DiscordClient.sendDiscordResponse(this.command, message);
+      const message = await this.getMessageResponse(command);
+      await DiscordClient.sendDiscordResponse(command, message);
     } catch (e) {
       console.log(e);
       const unhandledErrorDiscordMessage = `${DiscordEmoji.SOS} Something went wrong, you might want to try again.`;
-      await DiscordClient.sendDiscordResponse(this.command, unhandledErrorDiscordMessage);
+      await DiscordClient.sendDiscordResponse(command, unhandledErrorDiscordMessage);
       throw new Error('Error completing request.');
     }
   };
 
-  private getMessageResponse = () => {
-    const commandType = this.command.data.options[0].name;
+  private getMessageResponse = (command: APIChatInputApplicationCommandInteraction) => {
+    const commandType = command.data.options[0].name;
     switch (commandType) {
       case CommandType.START:
         return this.handleStart();
