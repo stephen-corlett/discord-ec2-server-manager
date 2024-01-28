@@ -8,7 +8,7 @@ This is mainly useful to keep costs down by enabling anyone in your Discord serv
 
 This project uses AWS API Gateway and AWS Lambda to receive requests from Discord and manage the EC2 server. The two services are essentially free for this purpose.
 
-The stack is deployed via AWS SAM so that you can deploy to any AWS account but just configuring a few environment variables.
+The stack is deployed via AWS CloudFormation so that you can deploy to any AWS account by just configuring a few environment variables.
 
 ## Currently supported commands
 
