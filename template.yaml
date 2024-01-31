@@ -28,7 +28,7 @@ Parameters:
     Default: 't3a.micro'
   EC2ImageId:
     Type: String
-    Default: 'ami-035bf26fb18e75d1b'
+    Default: 'ami-008fe2fc65df48dac' # Ubuntu Server 22.04 LTS, SSD Volume Type, x86 
   EBSStorageSizeGB:
     Type: Number
     Default: 20
@@ -91,7 +91,7 @@ Resources:
       SecurityGroupIds:
         - !Ref EC2SecurityGroup
       BlockDeviceMappings:
-        - DeviceName: "/dev/xvda"
+        - DeviceName: "/dev/sda1"
           Ebs:
             VolumeSize: !Ref EBSStorageSizeGB
             VolumeType: gp3
@@ -99,9 +99,14 @@ Resources:
       UserData: !Base64
         Fn::Sub: |
           #!/bin/bash
-          sudo aws s3 cp s3://${S3BucketName}${S3StartServerScriptPath} /home/ec2-user/start-server.sh
-          sudo chmod +x /home/ec2-user/start-server.sh
-          /home/ec2-user/start-server.sh
+          sudo apt-get update
+          sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          sudo apt install unzip
+          sudo unzip awscliv2.zip
+          sudo ./aws/install
+          sudo aws s3 cp s3://${S3BucketName}${S3StartServerScriptPath} /home/ubuntu/start-server.sh
+          sudo chmod +x /home/ubuntu/start-server.sh
+          /home/ubuntu/start-server.sh
 
   Ec2StatusControllerFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction

@@ -27,4 +27,5 @@ sam deploy --config-file samconfig.toml \
     ParameterKey=BotClientSecret,ParameterValue=$BOT_CLIENT_SECRET \
     ParameterKey=S3BucketName,ParameterValue=$S3_BUCKET_NAME \
     ParameterKey=S3StartServerScriptPath,ParameterValue=$S3_START_SERVER_SCRIPT_PATH \
-    ParameterKey=EC2InstanceType,ParameterValue=t3a.large
+    ParameterKey=EC2InstanceType,ParameterValue=$EC2_INSTANCE_TYPE \
+    ParameterKey=EC2ImageId,ParameterValue=$EC2_IMAGE_ID
