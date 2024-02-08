@@ -9,7 +9,8 @@ echo Preparing to build...
 echo Building...
 npm install
 npm run lint
-npm run compile
+npm run build:botRequestHandler
+npm run build:ec2StatusController
 
 mkdir -p ./dependencies/nodejs/
 cp package.json ./dependencies/nodejs/package.json
@@ -28,4 +29,5 @@ sam deploy --config-file samconfig.toml \
     ParameterKey=S3BucketName,ParameterValue=$S3_BUCKET_NAME \
     ParameterKey=S3StartServerScriptPath,ParameterValue=$S3_START_SERVER_SCRIPT_PATH \
     ParameterKey=EC2InstanceType,ParameterValue=$EC2_INSTANCE_TYPE \
-    ParameterKey=EC2ImageId,ParameterValue=$EC2_IMAGE_ID
+    ParameterKey=EC2ImageId,ParameterValue=$EC2_IMAGE_ID \
+    ParameterKey=EBSStorageSizeGB,ParameterValue=$EBS_STORAGE_SIZE_GB

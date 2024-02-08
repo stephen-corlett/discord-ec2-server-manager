@@ -7,14 +7,16 @@
   "author": "stephen-corlett",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.999.0",
+    "@aws-sdk/client-ec2": "^3.509.0",
+    "@aws-sdk/client-lambda": "^3.509.0",
     "axios": "^0.21.1",
     "discord-api-types": "^0.23.1",
     "discord-interactions": "^2.3.0",
     "http-status-codes": "^2.1.4"
   },
   "scripts": {
-    "compile": "tsc",
+    "build:botRequestHandler": "tsc -p tsconfig.botRequestHandler.json",
+    "build:ec2StatusController": "tsc -p tsconfig.ec2StatusController.json",
     "lint": "eslint . --ext .ts --fix"
   },
   "devDependencies": {

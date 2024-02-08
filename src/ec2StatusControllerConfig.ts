@@ -4,6 +4,7 @@ const env = {
   REGION: process.env.REGION,
   BOT_APPLICATION_ID: process.env.BOT_APPLICATION_ID,
   BOT_CLIENT_SECRET: process.env.BOT_CLIENT_SECRET,
+  BOT_PUBLIC_KEY: process.env.BOT_PUBLIC_KEY,
   INSTANCE_ID: process.env.INSTANCE_ID,
 };
 

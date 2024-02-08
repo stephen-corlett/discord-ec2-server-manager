@@ -112,7 +112,7 @@ Resources:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: build/ec2-status-controller/
-      Handler: app.default
+      Handler: ec2StatusController.default
       Timeout: 30
       Layers:
         - !Ref NodeModulesDependencyLayer
@@ -143,7 +143,7 @@ Resources:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: build/bot-request-handler/
-      Handler: app.default
+      Handler: botRequestHandler.default
       Timeout: 5
       Layers:
         - !Ref NodeModulesDependencyLayer
@@ -177,6 +177,14 @@ Resources:
         - Arn: !GetAtt Ec2StatusControllerFunction.Arn
           Id: 'TargetFunction'
           Input: '{ "isScheduledShutdown": true }'
+      EventBusName: 'default'  # Default event bus
+      EventPattern:
+        source:
+          - "aws.events"
+        detail-type:
+          - "Scheduled Event"
+        resources:
+          - !GetAtt Ec2StatusControllerFunction.Arn
 
   NodeModulesDependencyLayer:
     Type: AWS::Serverless::LayerVersion

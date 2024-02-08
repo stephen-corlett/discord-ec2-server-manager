@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./build/ec2-status-controller"
+  },
+  "include": ["src/ec2StatusController.ts"]
+}

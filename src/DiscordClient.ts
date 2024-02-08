@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { APIChatInputApplicationCommandInteraction } from 'discord-api-types/payloads/v9';
 import { RESTPostAPIWebhookWithTokenJSONBody } from 'discord-api-types/rest/v9';
-import config from './config';
 
 class DiscordClient {
+  constructor(private botApplicationId: string, private botClientSecret: string) {}
   public sendDiscordResponse = async (
     event: APIChatInputApplicationCommandInteraction,
     message: string
@@ -25,11 +25,11 @@ class DiscordClient {
   private postToDiscordWebhook = async (body: RESTPostAPIWebhookWithTokenJSONBody, interactionToken: string) => {
     const requestOptions = {
       headers: {
-        Authorization: `Bot ${config.env.BOT_CLIENT_SECRET}`,
+        Authorization: `Bot ${this.botClientSecret}`,
       },
     };
     try {
-      const url = `https://discord.com/api/v8/webhooks/${config.env.BOT_APPLICATION_ID}/${interactionToken}`;
+      const url = `https://discord.com/api/v8/webhooks/${this.botApplicationId}/${interactionToken}`;
       const response = await axios.post(url, body, requestOptions);
       if (response.status >= 300) {
         throw new Error(`Discord request returned non-success status ${response.status}`);
@@ -41,4 +41,4 @@ class DiscordClient {
   };
 }
 
-export default new DiscordClient();
+export default DiscordClient;
