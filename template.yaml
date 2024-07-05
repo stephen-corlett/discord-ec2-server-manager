@@ -52,6 +52,9 @@ Resources:
               - Effect: "Allow"
                 Action:
                   - "s3:ListBucket"
+                Resource: !Sub "arn:aws:s3:::${S3BucketName}"
+              - Effect: "Allow"
+                Action:
                   - "s3:GetObject"
                   - "s3:PutObject"
                 Resource:
@@ -76,6 +79,10 @@ Resources:
         - CidrIp: '0.0.0.0/0'
           FromPort: 15636
           ToPort: 15637
+          IpProtocol: udp
+        - CidrIp: '0.0.0.0/0'
+          FromPort: 2456
+          ToPort: 2458
           IpProtocol: udp
         - CidrIp: '0.0.0.0/0'
           FromPort: 22
@@ -104,9 +111,11 @@ Resources:
           sudo apt install unzip
           sudo unzip awscliv2.zip
           sudo ./aws/install
-          sudo aws s3 cp s3://${S3BucketName}${S3StartServerScriptPath} /home/ubuntu/start-server.sh
-          sudo chmod +x /home/ubuntu/start-server.sh
-          /home/ubuntu/start-server.sh
+          cd /home/ubuntu
+          sudo mkdir -p server-files
+          sudo aws s3 cp s3://${S3BucketName}/server-files/ /home/ubuntu/server-files/ --recursive
+          sudo chmod +x /home/ubuntu/server-files/${S3StartServerScriptPath}
+          /home/ubuntu/server-files/${S3StartServerScriptPath}
 
   Ec2StatusControllerFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -118,6 +127,12 @@ Resources:
         - !Ref NodeModulesDependencyLayer
       Architectures:
         - x86_64
+      Events:
+        DailyShutdownEvent:
+          Type: Schedule
+          Properties:
+            Schedule: cron(30 10 * * ? *) # Runs every day at 02:30 AM PST (UTC-8)
+            Input: '{ "isScheduledShutdown": true }'
       Policies:
         - EC2DescribePolicy: {}
         - Statement:
@@ -166,25 +181,6 @@ Resources:
           BOT_PUBLIC_KEY:
             Ref: BotPublicKey
           RESPONSE_FUNC_ARN: !GetAtt Ec2StatusControllerFunction.Arn
-
-  EventBridgeScheduledShutdownRule:
-    Type: 'AWS::Events::Rule'
-    Properties:
-      Name: 'DailyShutdownRule'
-      ScheduleExpression: 'cron(30 10 * * ? *)'  # Runs every day at 02:30 AM PST (UTC-8)
-      State: 'ENABLED'
-      Targets:
-        - Arn: !GetAtt Ec2StatusControllerFunction.Arn
-          Id: 'TargetFunction'
-          Input: '{ "isScheduledShutdown": true }'
-      EventBusName: 'default'  # Default event bus
-      EventPattern:
-        source:
-          - "aws.events"
-        detail-type:
-          - "Scheduled Event"
-        resources:
-          - !GetAtt Ec2StatusControllerFunction.Arn
 
   NodeModulesDependencyLayer:
     Type: AWS::Serverless::LayerVersion
