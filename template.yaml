@@ -32,6 +32,8 @@ Parameters:
   EBSStorageSizeGB:
     Type: Number
     Default: 20
+  ServerUrl:
+    Type: String
 
 Resources:
   EC2Role:
@@ -153,6 +155,8 @@ Resources:
           BOT_CLIENT_SECRET:
             Ref: BotClientSecret
           INSTANCE_ID: !Ref EC2ServerInstance
+          SERVER_URL:
+            Ref: ServerUrl
 
   BotRequestHandlerFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction

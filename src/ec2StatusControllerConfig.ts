@@ -6,6 +6,7 @@ const env = {
   BOT_CLIENT_SECRET: process.env.BOT_CLIENT_SECRET,
   BOT_PUBLIC_KEY: process.env.BOT_PUBLIC_KEY,
   INSTANCE_ID: process.env.INSTANCE_ID,
+  SERVER_URL: process.env.SERVER_URL,
 };
 
 export default {

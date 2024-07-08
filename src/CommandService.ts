@@ -2,6 +2,7 @@ import EC2Service from './ec2Service';
 import DiscordClient from './DiscordClient';
 import { InstanceState, CommandType, DiscordEmoji } from './constants';
 import { APIChatInputApplicationCommandInteraction } from 'discord-api-types/payloads/v9';
+import config from './ec2StatusControllerConfig';
 
 interface ICommandService {
   run: (command: APIChatInputApplicationCommandInteraction, ec2InstanceId: string) => Promise<void>;
@@ -49,16 +50,16 @@ class CommandService implements ICommandService {
   };
 
   private handleStart = async (instanceId: string) => {
-    const { state, ipAddress } = await this.getInstanceInfo(instanceId);
+    const { state } = await this.getInstanceInfo(instanceId);
     if (state === InstanceState.RUNNING) {
-      return `${DiscordEmoji.AXE} Server is already running at IP: ${ipAddress}`;
+      return `${DiscordEmoji.AXE} Server is already running at: ${config.env.SERVER_URL}`;
     }
 
     await this.ec2Service.startInstance(instanceId);
     await this.ec2Service.waitForInstanceRunning(instanceId);
-    const { ipAddress: newIp } = await this.getInstanceInfo(instanceId);
+    await this.getInstanceInfo(instanceId);
 
-    return `${DiscordEmoji.CROSSED_SWORDS} Server started at IP: ${newIp}`;
+    return `${DiscordEmoji.CROSSED_SWORDS} Server started at: ${config.env.SERVER_URL}`;
   };
 
   handleStop = async (instanceId: string): Promise<string> => {
@@ -72,10 +73,10 @@ class CommandService implements ICommandService {
   };
 
   private handleStatus = async (instanceId: string) => {
-    const { state, ipAddress } = await this.getInstanceInfo(instanceId);
+    const { state } = await this.getInstanceInfo(instanceId);
 
     if (state === InstanceState.RUNNING) {
-      return `${DiscordEmoji.TREE} Server is running at IP: ${ipAddress}`;
+      return `${DiscordEmoji.TREE} Server is running at: ${config.env.SERVER_URL}`;
     } else if (state === InstanceState.STOPPED) {
       return `${DiscordEmoji.SLEEPING} Server is stopped`;
     } else if (state === InstanceState.STOPPING) {

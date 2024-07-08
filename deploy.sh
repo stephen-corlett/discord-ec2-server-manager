@@ -30,4 +30,5 @@ sam deploy --config-file samconfig.toml \
     ParameterKey=S3StartServerScriptPath,ParameterValue=$S3_START_SERVER_SCRIPT_PATH \
     ParameterKey=EC2InstanceType,ParameterValue=$EC2_INSTANCE_TYPE \
     ParameterKey=EC2ImageId,ParameterValue=$EC2_IMAGE_ID \
-    ParameterKey=EBSStorageSizeGB,ParameterValue=$EBS_STORAGE_SIZE_GB
+    ParameterKey=EBSStorageSizeGB,ParameterValue=$EBS_STORAGE_SIZE_GB \
+    ParameterKey=ServerUrl,ParameterValue=$SERVER_URL
