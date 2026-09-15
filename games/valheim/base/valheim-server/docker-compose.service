@@ -1,0 +1,14 @@
+[Unit]
+Description=Docker Compose Application
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+TimeoutStopSec=120
+RemainAfterExit=true
+ExecStart=sudo docker compose --env-file /home/ubuntu/server-files/.env -f /home/ubuntu/server-files/valheim-server/docker-compose-valheim.yaml up -d
+ExecStop=sudo docker compose -f /home/ubuntu/server-files/valheim-server/docker-compose-valheim.yaml stop
+
+[Install]
+WantedBy=multi-user.target

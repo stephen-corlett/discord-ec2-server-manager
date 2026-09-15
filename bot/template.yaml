@@ -1,0 +1,115 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Discord bot for managing game server worlds
+
+Globals:
+  Function:
+    Runtime: nodejs26.x
+
+Parameters:
+  AwsRegion:
+    Type: String
+  BotApplicationId:
+    Type: String
+  BotPublicKey:
+    Type: String
+  BotClientSecret:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /discord-ec2-server-manager/bot-client-secret
+
+Resources:
+  Ec2StatusControllerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: build/ec2-status-controller/
+      Handler: ec2StatusController.default
+      Timeout: 60
+      Layers:
+        - !Ref NodeModulesDependencyLayer
+      Architectures:
+        - x86_64
+      Events:
+        DailyShutdownEvent:
+          Type: Schedule
+          Properties:
+            Schedule: cron(30 10 * * ? *)
+            Input: '{ "isScheduledShutdown": true }'
+      Policies:
+        - EC2DescribePolicy: {}
+        - Statement:
+          - Sid: AllowEC2LifecycleManagement
+            Effect: Allow
+            Action:
+            - ec2:StartInstances
+            - ec2:StopInstances
+            Resource: '*'
+        - Statement:
+          - Sid: AllowSSMWorldRegistryRead
+            Effect: Allow
+            Action:
+            - ssm:GetParametersByPath
+            Resource:
+            - !Sub "arn:aws:ssm:${AwsRegion}:${AWS::AccountId}:parameter/game-servers"
+            - !Sub "arn:aws:ssm:${AwsRegion}:${AWS::AccountId}:parameter/game-servers/*"
+      Environment:
+        Variables:
+          REGION:
+            Ref: AwsRegion
+          BOT_APPLICATION_ID:
+            Ref: BotApplicationId
+          BOT_PUBLIC_KEY:
+            Ref: BotPublicKey
+          BOT_CLIENT_SECRET:
+            Ref: BotClientSecret
+          SSM_WORLD_PREFIX: /game-servers
+
+  BotRequestHandlerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: build/bot-request-handler/
+      Handler: botRequestHandler.default
+      Timeout: 5
+      Layers:
+        - !Ref NodeModulesDependencyLayer
+      Architectures:
+        - x86_64
+      Events:
+        BotRequestHandler:
+          Type: Api
+          Properties:
+            Path: /bot_request
+            Method: POST
+      Policies:
+        - LambdaInvokePolicy:
+            FunctionName:
+              !Ref Ec2StatusControllerFunction
+      Environment:
+        Variables:
+          REGION:
+            Ref: AwsRegion
+          BOT_PUBLIC_KEY:
+            Ref: BotPublicKey
+          RESPONSE_FUNC_ARN: !GetAtt Ec2StatusControllerFunction.Arn
+
+  NodeModulesDependencyLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: nodejs-dependencies
+      Description: Node Modules
+      ContentUri: dependencies/
+      CompatibleRuntimes:
+        - nodejs26.x
+      LicenseInfo: 'MIT'
+      RetentionPolicy: Retain
+
+Outputs:
+  DiscordEC2ServerManagerApi:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  Ec2StatusControllerFunction:
+    Description: "EC2 Status Controller Lambda Function ARN"
+    Value: !GetAtt Ec2StatusControllerFunction.Arn
+  BotRequestHandlerFunction:
+    Description: "Bot Request Handler Lambda Function ARN"
+    Value: !GetAtt BotRequestHandlerFunction.Arn

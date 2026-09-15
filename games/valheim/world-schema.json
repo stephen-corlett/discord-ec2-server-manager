@@ -1,0 +1,30 @@
+{
+  "extends": "base",
+  "properties": {
+    "serverName": { "envVar": "NAME" },
+    "password": { "envVar": "PASSWORD" },
+    "timezone": { "envVar": "TZ" },
+    "worldName": {
+      "type": "string",
+      "envVar": "WORLD",
+      "description": "World/save file name",
+      "required": true
+    },
+    "public": {
+      "type": "boolean",
+      "envVar": "PUBLIC",
+      "description": "List server in public browser",
+      "default": true,
+      "trueValue": "1",
+      "falseValue": "0"
+    },
+    "crossplay": {
+      "type": "boolean",
+      "envVar": "ENABLE_CROSSPLAY",
+      "description": "Enable crossplay",
+      "default": true,
+      "trueValue": "1",
+      "falseValue": "0"
+    }
+  }
+}

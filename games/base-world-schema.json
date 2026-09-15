@@ -1,0 +1,27 @@
+{
+  "properties": {
+    "worldId": {
+      "type": "string",
+      "description": "Short unique world identifier (max 6 chars, lowercase alphanumeric)",
+      "required": true,
+      "maxLength": 6,
+      "pattern": "^[a-z0-9]+$"
+    },
+    "serverName": {
+      "type": "string",
+      "description": "Display name for the server",
+      "required": true
+    },
+    "password": {
+      "type": "string",
+      "description": "Server password",
+      "required": true,
+      "fromEnv": "SERVER_PASSWORD"
+    },
+    "timezone": {
+      "type": "string",
+      "description": "Server timezone",
+      "default": "America/Vancouver"
+    }
+  }
+}

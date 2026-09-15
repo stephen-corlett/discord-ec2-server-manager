@@ -1,0 +1,33 @@
+{
+  "name": "discord-ec2-server-manager-bot",
+  "version": "1.0.0",
+  "description": "AWS Lambda functions for Discord bot game server management",
+  "type": "module",
+  "repository": "https://github.com/stephen-corlett/discord-ec2-server-manager",
+  "author": "stephen-corlett",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-ec2": "^3.1109.0",
+    "@aws-sdk/client-lambda": "^3.1109.0",
+    "@aws-sdk/client-ssm": "^3.1109.0",
+    "discord-api-types": "^0.38.55",
+    "discord-interactions": "^4.4.0",
+    "http-status-codes": "^2.3.0"
+  },
+  "scripts": {
+    "typecheck": "node node_modules/typescript/lib/tsc.js --noEmit",
+    "build:botRequestHandler": "node node_modules/typescript/lib/tsc.js -p tsconfig.botRequestHandler.json",
+    "build:ec2StatusController": "node node_modules/typescript/lib/tsc.js -p tsconfig.ec2StatusController.json",
+    "lint": "oxlint src/",
+    "fmt": "oxfmt src/",
+    "fmt:check": "oxfmt --check src/"
+  },
+  "devDependencies": {
+    "@tsconfig/node26": "^26.0.1",
+    "@types/aws-lambda": "^8.10.161",
+    "@types/node": "^26.5.1",
+    "oxlint": "^1.82.0",
+    "oxfmt": "^0.67.0",
+    "typescript": "^7.0.2"
+  }
+}

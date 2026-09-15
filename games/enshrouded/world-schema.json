@@ -1,0 +1,14 @@
+{
+  "extends": "base",
+  "properties": {
+    "serverName": { "envVar": "SERVER_NAME" },
+    "password": { "envVar": "SERVER_PASSWORD" },
+    "timezone": { "envVar": "TZ" },
+    "maxPlayers": {
+      "type": "number",
+      "envVar": "SERVER_SLOTS",
+      "description": "Maximum number of players",
+      "default": 6
+    }
+  }
+}

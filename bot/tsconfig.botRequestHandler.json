@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./build/bot-request-handler",
+    "rootDir": "./src"
+  },
+  "include": ["src/botRequestHandler.ts"]
+}

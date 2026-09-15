@@ -1,0 +1,10 @@
+{
+  "instanceType": "t3a.large",
+  "storageGB": 20,
+  "imageId": "ami-008fe2fc65df48dac",
+  "startScript": "valheim-server/start-server.sh",
+  "savePath": "valheim-server/savegame",
+  "ports": [
+    { "protocol": "udp", "from": 2456, "to": 2458 }
+  ]
+}

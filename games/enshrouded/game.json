@@ -1,0 +1,10 @@
+{
+  "instanceType": "t3a.xlarge",
+  "storageGB": 30,
+  "imageId": "ami-008fe2fc65df48dac",
+  "startScript": "enshrouded-server/start-server.sh",
+  "savePath": "enshrouded-server/savegame",
+  "ports": [
+    { "protocol": "udp", "from": 15636, "to": 15637 }
+  ]
+}

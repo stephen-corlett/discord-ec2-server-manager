@@ -1,0 +1,10 @@
+{
+  "plugins": ["typescript"],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "no-shadow": "error",
+    "no-unused-vars": "error"
+  }
+}

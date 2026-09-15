@@ -1,0 +1,265 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Game server infrastructure stack — one per game+world
+
+Parameters:
+  GameName:
+    Type: String
+  WorldId:
+    Type: String
+    Description: Short unique world identifier (max 6 chars)
+  ServerName:
+    Type: String
+    Description: Display name for the server
+  AwsRegion:
+    Type: String
+  InstanceType:
+    Type: String
+  StorageGB:
+    Type: Number
+  ImageId:
+    Type: String
+    Default: 'ami-008fe2fc65df48dac'
+  StartScript:
+    Type: String
+  SavePath:
+    Type: String
+  ServerUrl:
+    Type: String
+  ServerFilesBucket:
+    Type: String
+    Description: Pre-existing S3 bucket for server files and saves
+  CfApiToken:
+    Type: String
+    Default: ''
+    NoEcho: true
+  CfDomain:
+    Type: String
+    Default: ''
+  Port1From:
+    Type: Number
+    Default: 0
+  Port1To:
+    Type: Number
+    Default: 0
+  Port1Protocol:
+    Type: String
+    Default: 'udp'
+  Port2From:
+    Type: Number
+    Default: 0
+  Port2To:
+    Type: Number
+    Default: 0
+  Port2Protocol:
+    Type: String
+    Default: 'udp'
+  Port3From:
+    Type: Number
+    Default: 0
+  Port3To:
+    Type: Number
+    Default: 0
+  Port3Protocol:
+    Type: String
+    Default: 'udp'
+
+Conditions:
+  HasPort1: !Not [!Equals [!Ref Port1From, 0]]
+  HasPort2: !Not [!Equals [!Ref Port2From, 0]]
+  HasPort3: !Not [!Equals [!Ref Port3From, 0]]
+
+Resources:
+  EC2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "ec2.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: "S3AccessPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "s3:ListBucket"
+                Resource: !Sub "arn:aws:s3:::${ServerFilesBucket}"
+              - Effect: "Allow"
+                Action:
+                  - "s3:GetObject"
+                  - "s3:PutObject"
+                Resource:
+                  - !Sub "arn:aws:s3:::${ServerFilesBucket}/*"
+
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - Ref: EC2Role
+
+  EC2SSHKeyPair:
+    Type: 'AWS::EC2::KeyPair'
+    Properties:
+      KeyName: !Sub "${AWS::StackName}-key"
+
+  EC2SecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: !Sub "Security group for ${GameName} ${WorldId} server"
+      SecurityGroupIngress:
+        - CidrIp: '0.0.0.0/0'
+          FromPort: 22
+          ToPort: 22
+          IpProtocol: tcp
+
+  Port1Ingress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: HasPort1
+    Properties:
+      GroupId: !GetAtt EC2SecurityGroup.GroupId
+      IpProtocol: !Ref Port1Protocol
+      FromPort: !Ref Port1From
+      ToPort: !Ref Port1To
+      CidrIp: '0.0.0.0/0'
+
+  Port2Ingress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: HasPort2
+    Properties:
+      GroupId: !GetAtt EC2SecurityGroup.GroupId
+      IpProtocol: !Ref Port2Protocol
+      FromPort: !Ref Port2From
+      ToPort: !Ref Port2To
+      CidrIp: '0.0.0.0/0'
+
+  Port3Ingress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: HasPort3
+    Properties:
+      GroupId: !GetAtt EC2SecurityGroup.GroupId
+      IpProtocol: !Ref Port3Protocol
+      FromPort: !Ref Port3From
+      ToPort: !Ref Port3To
+      CidrIp: '0.0.0.0/0'
+
+  EC2ServerInstance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !Ref ImageId
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref EC2SSHKeyPair
+      SecurityGroupIds:
+        - !Ref EC2SecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sda1"
+          Ebs:
+            VolumeSize: !Ref StorageGB
+            VolumeType: gp3
+      IamInstanceProfile: !Ref EC2InstanceProfile
+      UserData: !Base64
+        Fn::Sub: |
+          #!/bin/bash
+          set -e
+
+          # Install AWS CLI
+          apt-get update
+          curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          apt-get install -y unzip
+          unzip -q awscliv2.zip
+          ./aws/install
+          rm -rf aws awscliv2.zip
+
+          # Install Docker
+          apt-get install -y ca-certificates curl
+          install -m 0755 -d /etc/apt/keyrings
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+          chmod a+r /etc/apt/keyrings/docker.asc
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" > /etc/apt/sources.list.d/docker.list
+          apt-get update
+          apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+          # Pull server files and saves from S3
+          mkdir -p /home/ubuntu/server-files
+          /usr/local/bin/aws s3 cp s3://${ServerFilesBucket}/server-files/ /home/ubuntu/server-files/ --recursive
+          /usr/local/bin/aws s3 cp s3://${ServerFilesBucket}/saves/ /home/ubuntu/server-files/${SavePath}/ --recursive
+          chmod +x /home/ubuntu/server-files/${StartScript}
+
+          # Save sync: systemd shutdown hook
+          cat > /etc/systemd/system/s3-save-sync.service <<'UNIT'
+          [Unit]
+          Description=Sync game saves to S3 on shutdown
+          DefaultDependencies=no
+          Before=shutdown.target reboot.target halt.target
+          [Service]
+          Type=oneshot
+          RemainAfterExit=yes
+          ExecStart=/bin/true
+          ExecStop=/usr/local/bin/aws s3 sync /home/ubuntu/server-files/${SavePath}/ s3://${ServerFilesBucket}/saves/ --quiet
+          [Install]
+          WantedBy=multi-user.target
+          UNIT
+          systemctl daemon-reload
+          systemctl enable --now s3-save-sync.service
+
+          # Save sync: cron every 5 minutes
+          echo "*/5 * * * * root /usr/local/bin/aws s3 sync /home/ubuntu/server-files/${SavePath}/ s3://${ServerFilesBucket}/saves/ --quiet" >> /etc/crontab
+
+          # Dynamic DNS container
+          if [ -n "${CfApiToken}" ] && [ -n "${CfDomain}" ]; then
+            docker run -d --restart=unless-stopped --name ddns \
+              --network=host \
+              -e PUID=1000 -e PGID=1000 \
+              -e CF_API_TOKEN=${CfApiToken} \
+              -e DOMAINS=${CfDomain} \
+              favonia/cloudflare-ddns:latest
+          fi
+
+          # Run the game-specific start script
+          /home/ubuntu/server-files/${StartScript}
+
+  WorldInstanceIdParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/game-servers/${WorldId}/instance-id"
+      Type: String
+      Value: !Ref EC2ServerInstance
+
+  WorldServerUrlParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/game-servers/${WorldId}/server-url"
+      Type: String
+      Value: !Ref ServerUrl
+
+  WorldGameNameParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/game-servers/${WorldId}/game-name"
+      Type: String
+      Value: !Ref GameName
+
+  WorldServerNameParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/game-servers/${WorldId}/server-name"
+      Type: String
+      Value: !Ref ServerName
+
+Outputs:
+  InstanceId:
+    Description: 'EC2 instance ID'
+    Value: !Ref EC2ServerInstance
+  PublicDnsName:
+    Description: 'Public DNS name of the EC2 instance'
+    Value: !GetAtt EC2ServerInstance.PublicDnsName
+  BucketName:
+    Description: 'S3 bucket for server files'
+    Value: !Ref ServerFilesBucket
+  WorldId:
+    Description: 'Short world identifier used in SSM registry'
+    Value: !Ref WorldId

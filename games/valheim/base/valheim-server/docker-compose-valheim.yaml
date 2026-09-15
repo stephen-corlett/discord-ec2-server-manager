@@ -1,0 +1,20 @@
+services:
+  valheim-server:
+    image: mbround18/valheim:latest
+    restart: unless-stopped
+    stop_signal: SIGINT
+    ports:
+      - "2456:2456/udp"
+      - "2457:2457/udp"
+      - "2458:2458/udp"
+    environment:
+      PORT: 2456
+      NAME: "${NAME}"
+      WORLD: "${WORLD}"
+      PASSWORD: "${PASSWORD}"
+      TZ: "${TZ:-America/Vancouver}"
+      PUBLIC: "${PUBLIC:-1}"
+      ENABLE_CROSSPLAY: "${ENABLE_CROSSPLAY:-1}"
+    volumes:
+      - /home/ubuntu/server-files/valheim-server/savegame:/home/steam/.config/unity3d/IronGate/Valheim
+      - /home/ubuntu/valheim-server:/home/steam/valheim

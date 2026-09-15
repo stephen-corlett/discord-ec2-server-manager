@@ -1,0 +1,10 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "discord-ec2-server-manager-bot"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-8mlsapf7qjpc"
+s3_prefix = "discord-ec2-server-manager-bot"
+capabilities = "CAPABILITY_IAM"
+image_repositories = []
+parameter_overrides = "AwsRegion=\"us-west-2\" BotApplicationId=\"814014697527312434\" BotPublicKey=\"23058e973c398a8af6315a39d240d472409089133b0d2787aa2971663e111c7c\""
